@@ -7,3 +7,8 @@ This folder defines models for the two django apps, `execution` and `stat_analys
 
 When preparing Part 2 of the task, create two new apps in your project, and use the provided
 files to define the models in these apps.
+
+
+
+Part 1 diagram
+![Design part 1](https://github.com/OlivierMantz/AssignmentTUe/blob/Part1/Part1.png)
