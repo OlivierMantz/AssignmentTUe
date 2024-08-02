@@ -2,16 +2,28 @@ from django.test import TestCase
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework import status
-from .models import User, ServiceProvider, AccountManager, Customer, Job, Order
+from .models.user import User
+from .models.service_provider import ServiceProvider
+from .models.account_manager import AccountManager, ServiceProviderAccountManager
+from .models.customer import Customer
+from .models.job import Job
+from .models.order import Order
+
 from django.utils import timezone
 
 class OrderCreationAndVisibilityTests(APITestCase):
     def setUp(self):
-        # Create users
+    # Create users
         self.user_manager1 = User.objects.create_user(username='manager1', password='12345', user_type='ACCOUNT_MANAGER')
         self.user_manager2 = User.objects.create_user(username='manager2', password='12345', user_type='ACCOUNT_MANAGER')
         self.user_customer1 = User.objects.create_user(username='customer1', password='12345', user_type='CUSTOMER')
         self.user_customer2 = User.objects.create_user(username='customer2', password='12345', user_type='CUSTOMER')
+
+        # Refresh from database to ensure related objects are created
+        self.user_manager1.refresh_from_db()
+        self.user_manager2.refresh_from_db()
+        self.user_customer1.refresh_from_db()
+        self.user_customer2.refresh_from_db()
 
         # Get the automatically created AccountManager and Customer instances
         self.account_manager1 = self.user_manager1.account_manager
