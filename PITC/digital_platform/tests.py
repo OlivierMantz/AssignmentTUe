@@ -35,7 +35,6 @@ class OrderCreationAndVisibilityTests(APITestCase):
 
         # Create jobs
         self.job1 = Job.objects.create(
-            job_id='JOB001',
             job_name='Job 1',
             state='created',
             job_type='regular',
@@ -46,7 +45,6 @@ class OrderCreationAndVisibilityTests(APITestCase):
             price=100.00
         )
         self.job2 = Job.objects.create(
-            job_id='JOB002',
             job_name='Job 2',
             state='created',
             job_type='regular',
@@ -60,9 +58,9 @@ class OrderCreationAndVisibilityTests(APITestCase):
     def test_customer_order_with_valid_job_and_account_manager(self):
         url = reverse('order-list')
         data = {
-            'customer': self.customer1.id,
-            'account_manager': self.account_manager1.id,
-            'job': self.job1.id,
+            'customer': self.customer1.user.id,
+            'account_manager': self.account_manager1.user.id,
+            'job': self.job1.job_id,
             'quantity': 1
         }
         response = self.client.post(url, data, format='json')
@@ -72,9 +70,9 @@ class OrderCreationAndVisibilityTests(APITestCase):
     def test_customer_order_with_invalid_account_manager(self):
         url = reverse('order-list')
         data = {
-            'customer': self.customer1.id,
-            'account_manager': self.account_manager2.id,  # This is not customer1's assigned account manager
-            'job': self.job1.id,
+            'customer': self.customer1.user.id,
+            'account_manager': self.account_manager2.user.id,  # This is not customer1's assigned account manager
+            'job': self.job1.job_id,
             'quantity': 1
         }
         response = self.client.post(url, data, format='json')
@@ -84,9 +82,9 @@ class OrderCreationAndVisibilityTests(APITestCase):
     def test_customer_order_with_unmanaged_service_provider(self):
         url = reverse('order-list')
         data = {
-            'customer': self.customer1.id,
-            'account_manager': self.account_manager1.id,
-            'job': self.job2.id,  # This job is from a provider not managed by account_manager1
+            'customer': self.customer1.user.id,
+            'account_manager': self.account_manager1.user.id,
+            'job': self.job2.job_id,  # This job is from a provider not managed by account_manager1
             'quantity': 1
         }
         response = self.client.post(url, data, format='json')
@@ -99,14 +97,14 @@ class OrderCreationAndVisibilityTests(APITestCase):
         order2 = Order.objects.create(customer=self.customer2, account_manager=self.account_manager2, job=self.job2, quantity=1)
 
         # Test visibility for account_manager1
-        url = reverse('order-list') + f'?account_manager_id={self.account_manager1.id}'
+        url = reverse('order-list') + f'?account_manager_id={self.account_manager1.user.id}'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], order1.id)
 
         # Test visibility for account_manager2
-        url = reverse('order-list') + f'?account_manager_id={self.account_manager2.id}'
+        url = reverse('order-list') + f'?account_manager_id={self.account_manager2.user.id}'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
@@ -118,14 +116,14 @@ class OrderCreationAndVisibilityTests(APITestCase):
         order2 = Order.objects.create(customer=self.customer2, account_manager=self.account_manager2, job=self.job2, quantity=1)
 
         # Test visibility for customer1
-        url = reverse('order-list') + f'?customer_id={self.customer1.id}'
+        url = reverse('order-list') + f'?customer_id={self.customer1.user.id}'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], order1.id)
 
         # Test visibility for customer2
-        url = reverse('order-list') + f'?customer_id={self.customer2.id}'
+        url = reverse('order-list') + f'?customer_id={self.customer2.user.id}'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
