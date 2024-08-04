@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-
-class DigitalPlatformConfig(AppConfig):
+class ExecutionConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'digital_platform'
+    name = 'execution'
+
